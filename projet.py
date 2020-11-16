@@ -1,71 +1,68 @@
-import cv2
 from Crypto.Cipher import AES
-from Crypto import Random
+import io
+import os
+import cv2
 from PIL import Image
-import PIL
+
+key= b'1234567890123456'
+iv= b'1234567890123456'
+file_name ="./TurtleD.tif"
 
 
-img = cv2.imread('TurtleD.tif')
+#Encrypting Image
+def encrypt_image():
+    global key,iv,file_name
+    
+    input_file = open(file_name,"rb")
+    input_data = input_file.read()
+    input_file.close()
+    
+    cfb_cipher = AES.new(key, AES.MODE_CFB, iv)
+    enc_data = cfb_cipher.encrypt(input_data)
+    
+    enc_file = open(file_name+".enc", "wb")
+    enc_file.write(enc_data)
+    enc_file.close()
+	
+    img = cv2.imread(file_name)
+    cv2.namedWindow('img',cv2.WINDOW_NORMAL) # Can be resized
+    cv2.imshow('img',img)
+    cv2.waitKey(0)
+    
+    
+def decrypt_image():
+    global key,iv,entry_for_folder
+   
+    enc_file2 = open((file_name)+'.enc',"rb")
+    enc_data2 = enc_file2.read()
+    enc_file2.close()
 
+    cfb_decipher = AES.new(key, AES.MODE_CFB, iv)
+    plain_data = (cfb_decipher.decrypt(enc_data2))
 
+    dec_file = open((file_name[:-8])+'dec.jpg', "wb")
+    dec_file.write(plain_data)
+    dec_file.close()
 
-
-##crypt image
-iv_AES = Random.new().read(AES.block_size)
-key_AES = 'abcdefghijklmnop'.encode("utf8")
-
-
-aese = AES.new(key_AES, AES.MODE_CFB, iv_AES)
-aesd = AES.new(key_AES, AES.MODE_CFB, iv_AES)
-
-
-input_file = open('TurtleD.tif', 'rb')
-input_data = input_file.read()
-input_file.close()
-
-imgC = aese.encrypt(input_data)
-
-
-#then treat encrypted data as a bitmap
-# calculate sizes
-num_bytes = len(imgC)
-num_pixels = int((num_bytes+2)/3)                     # 3 bytes per pixel
-H = img.shape[0]          # W=H, such that everything fits in
-W = img.shape[1]
-
-# fill the image with zeros, because probably len(imagedata) < needed W*H*3
-#imagedata = imgC + '\0' * (W*H*3 - len(imgC))
-
-image = Image.frombytes('RGB', (W, H), imgC)         # create image
-image.save('image.bmp')  
-
-#now decrypt
-output_file = open('image.bmp', 'rb')
-output_data = output_file.read()
-output_file.close()
-
-imgD = aesd.decrypt(output_data)
-
-num_bytes = len(imgD)
-num_pixels = int((num_bytes+2)/3)                     # 3 bytes per pixel
-H = img.shape[0]          # W=H, such that everything fits in
-W = img.shape[1]
-
-# fill the image with zeros, because probably len(imagedata) < needed W*H*3
-#imagedata = imgC + '\0' * (W*H*3 - len(imgC))
-
-imageD = Image.frombytes('RGB', (W, H), imgD)         # create image
-imageD.save('recreated.bmp')  
-
-
-# save to a file
-
-'''
-cv2.namedWindow('imgC',cv2.WINDOW_NORMAL) # Can be resized
-cv2.namedWindow('img',cv2.WINDOW_NORMAL) # Can be resized
-
-cv2.imshow('img',img)
-cv2.imshow('imgC',imgC)
-
-cv2.waitKey(0)
-'''
+def save_enc_file(filename):
+    
+    input_file = open(filename+".enc", 'rb')
+    input_data = input_file.read()
+    input_file.close()
+     
+    
+    #then treat encrypted data as a bitmap
+    # calculate sizes
+    imgBase = cv2.imread(filename)              
+    H = imgBase.shape[0]          # W=H, such that everything fits in
+    W = imgBase.shape[1]
+    
+    # fill the image with zeros, because probably len(imagedata) < needed W*H*3
+    #imagedata = imgC + '\0' * (W*H*3 - len(imgC))
+    
+    image = Image.frombytes('RGB', (W, H), input_data)         # create image
+    image.save('imageC.bmp')  
+                
+encrypt_image();
+decrypt_image();
+save_enc_file(file_name)
