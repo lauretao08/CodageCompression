@@ -6,7 +6,7 @@ from PIL import Image
 key= b'1234567890123456'
 dh_key= b'1234567890123456'
 iv= b'1234567890123456'
-file_name ="./14_Perroquet.ppm"
+file_name ="./lena256.ppm"
 
 message = 'je suis super secret'
 
@@ -25,6 +25,14 @@ def encrypt_image(filename_in,filename_out):
     enc_file = open(filename_out, "wb")
     enc_file.write(enc_data)
     enc_file.close()
+    
+    #and save a visible bitmap of the encrypted image
+    imgBase = cv2.imread(filename_in)             
+    H = imgBase.shape[0]          # W=H, such that everything fits in
+    W = imgBase.shape[1]
+    
+    image = Image.frombytes('RGB', (W, H), enc_data)         # create image
+    image.save(filename_out[:-4]+'enc_readable.bmp')
 	
     #img = cv2.imread(file_name)
     #cv2.namedWindow('img',cv2.WINDOW_NORMAL) # Can be resized
