@@ -206,7 +206,7 @@ def remove_message_and_decrypt(filename_in,filename_out):
     
     end=bytes(plain_data0)
     image = Image.frombytes('RGB', (512, 512), end)         # create image
-    image.save(filename_out[:-4]+'_TESTDEC.bmp')
+    image.save(filename_out[:-4]+'.bmp')
 
 
     dec_file = open(filename_out, "wb")
@@ -227,6 +227,6 @@ find_message(file_name[:2]+'hid'+file_name[2:])
 print("Data recuperation complete")
 
 decrypt_image(file_name[:2]+'hid'+file_name[2:],file_name[:2]+'dec'+file_name[2:])
-remove_message_and_decrypt(file_name[:2]+'hid'+file_name[2:],file_name[:2]+'REMOVED'+file_name[2:])
+remove_message_and_decrypt(file_name[:2]+'hid'+file_name[2:],file_name[:2]+'rem'+file_name[2:])
 #save_file(file_name[:2]+'dec'+file_name[2:])
 print("decryption complete")
